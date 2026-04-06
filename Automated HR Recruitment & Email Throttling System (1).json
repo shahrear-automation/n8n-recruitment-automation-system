@@ -1,0 +1,320 @@
+{
+  "name": "Automated HR Recruitment & Email Throttling System",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1E13pxTaiGhG-RMus1XDJgg-5xeTS2cdtIe7FZSSnoGg",
+          "mode": "list",
+          "cachedResultName": "Candidate_Verification_System",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1E13pxTaiGhG-RMus1XDJgg-5xeTS2cdtIe7FZSSnoGg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Recruitment_Database_2026",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1E13pxTaiGhG-RMus1XDJgg-5xeTS2cdtIe7FZSSnoGg/edit#gid=0"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c56ed28f-e966-4ac0-a165-16fb32fd83ac",
+      "name": "Recruitment Data Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "1cvZFN7HsX2sbl2U",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "94c5e888-0e25-46bd-af6f-fff91be90efc",
+      "name": "Sequential Candidate Processor"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "=Employment Verification Request for {{ $json['Candidate Name'] }}",
+        "message": "=Dear {{ $json['Candidate Name'] }},\nI hope this email finds you well.\n\nWe are currently in the process of conducting a background verification for your recent application. As part of our standard procedure, we would like to confirm the employment details you provided in our database.\n\nCould you please reply to this email to confirm your availability for a brief call, or attach any necessary documents if requested?\n\nYour current status in our system is: [Status]. We will update this as soon as the verification is complete.\n\nThank you for your cooperation.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        560,
+        -208
+      ],
+      "id": "00ca0eb2-08f1-4845-8311-295b6d8fbe58",
+      "name": "Automated Candidate Outreach",
+      "webhookId": "cfe52fa2-c75b-4f66-b7ed-c74cb6ab493b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "4BjPezfuDDVkp7Qs",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1E13pxTaiGhG-RMus1XDJgg-5xeTS2cdtIe7FZSSnoGg",
+          "mode": "list",
+          "cachedResultName": "Candidate_Verification_System",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1E13pxTaiGhG-RMus1XDJgg-5xeTS2cdtIe7FZSSnoGg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Recruitment_Database_2026",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1E13pxTaiGhG-RMus1XDJgg-5xeTS2cdtIe7FZSSnoGg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Candidate Name": "={{ $('Recruitment Data Trigger').item.json['Candidate Name'] }}",
+            "Status": "Done"
+          },
+          "matchingColumns": [
+            "Candidate Name"
+          ],
+          "schema": [
+            {
+              "id": "Candidate Name",
+              "displayName": "Candidate Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        848,
+        -16
+      ],
+      "id": "e2dd5de5-7979-4fa1-a842-d5ea3efaf201",
+      "name": "Recruitment Status Sync Engine",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X9q2X0KHsjkCA7oD",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1056,
+        -16
+      ],
+      "id": "2e42664f-88af-461c-8cb0-dbb43159fcb0",
+      "name": "Rate Limit Protection Layer",
+      "webhookId": "2abdc3cf-af78-422c-bfb9-fc06e3d459d5"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "Candidate Name"
+            },
+            {
+              "fieldToAggregate": "Status"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        560,
+        272
+      ],
+      "id": "44c0a95b-66d0-4bc3-b410-fa94ea7a460b",
+      "name": "Structured Reporting Engine"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "=ওস্তাদ, আজকের ইমেইল ক্যাম্পেইন শেষ! ✅\n\nমোট রেজিস্টার্ড ক্যান্ডিডেট: {{ $json[\"Candidate Name\"].length }} জন।\nনামের তালিকা:\n{{ $json[\"Candidate Name\"].join('\\n') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        768,
+        272
+      ],
+      "id": "87ea411c-4316-45b1-b01f-09460399b996",
+      "name": "Internal Team Notification System",
+      "webhookId": "1624160a-bb7c-4f16-a0db-2ee8d0e388aa",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "OSk2RRgb8OxbjTkD",
+          "name": "Discord Webhook account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Recruitment Data Trigger": {
+      "main": [
+        [
+          {
+            "node": "Sequential Candidate Processor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sequential Candidate Processor": {
+      "main": [
+        [
+          {
+            "node": "Structured Reporting Engine",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Automated Candidate Outreach",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Automated Candidate Outreach": {
+      "main": [
+        [
+          {
+            "node": "Recruitment Status Sync Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recruitment Status Sync Engine": {
+      "main": [
+        [
+          {
+            "node": "Rate Limit Protection Layer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rate Limit Protection Layer": {
+      "main": [
+        [
+          {
+            "node": "Sequential Candidate Processor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Reporting Engine": {
+      "main": [
+        [
+          {
+            "node": "Internal Team Notification System",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "a4dd7308-cb78-4fe4-be7c-dfde77eafd49",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b38568f45c032e05142dcfa8ed26e63e163bf19fd6865373a0cfcc76d5e699e2"
+  },
+  "id": "OZP9GDwtrQM0YAYC",
+  "tags": []
+}
